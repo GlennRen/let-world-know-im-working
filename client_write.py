@@ -3,7 +3,7 @@ import os
 import requests
 
 from urllib.parse import urljoin
-from typing import Any, Dict, NamedTuple
+from typing import Any, Dict, Mapping, NamedTuple
 
 class PersonalAccount(NamedTuple):
     username: str
@@ -15,6 +15,7 @@ WORK_TO_PERSONAL = {
         username="GlennRen",
         access_token=os.environ["GLENN_PERSONAL_ACCESS_TOKEN"]
     ),
+    # TODO: add a mapping from your work username to a PersonalAccount    
 }
 
 
@@ -22,7 +23,10 @@ class GithubWriteClient:
     GITHUB_CLIENT_URL = "https://api.github.com"
 
     def __init__(self):
-        personal_account = WORK_TO_PERSONAL["glenn_ramp"]
+        self.AUTH = None
+
+    def _update_auth(self, work_username: str):
+        personal_account = WORK_TO_PERSONAL[work_username]
 
         auth = f"{personal_account.username}:{personal_account.access_token}"
         auth_bytes = auth.encode("ascii")
@@ -114,5 +118,12 @@ class GithubWriteClient:
         }
         resp = self.update_reference(owner, repo, ref, body)
 
-client = GithubWriteClient()
-client.create_empty_commit()
+    def create_commits_for_contributions(self, contributions: Mapping[str, int]):
+        for username, contribution_count in contributions.items():
+            try:
+                self._update_auth(username)
+            except KeyError as e:
+                print(f"{username} has not added their personal account above.")
+                continue
+            for i in range(contribution_count):
+                self.create_empty_commit()

@@ -1,5 +1,6 @@
 import base64
 import os
+from typing import Any, Dict
 from urllib.parse import urljoin
 from dateutil import parser
 from datetime import datetime, timedelta, timezone
@@ -33,7 +34,7 @@ def get_author_from_commit(commit):
 
 
 
-class GithubClient:
+class GithubReadClient:
     GITHUB_CLIENT_URL = "https://api.github.com"
     PAGE_SIZE = 100
     REPO_LIST = [
